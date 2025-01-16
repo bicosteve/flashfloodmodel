@@ -25,14 +25,11 @@ from categories.categorize import (
 
 app = Flask(__name__)
 
-with open("models.pkl", "rb") as file:
-    try:
-        all_models = pickle.load(file)
-    except Exception as e:
-        print(jsonify({"error": str(e)}))
-
-
-# all_models = pickle.load(open("models.pkl", "rb"))
+try:
+    model = pickle.load(open("model.pkl", "rb"))
+    print("Success", model)
+except (pickle.UnpicklingError, TypeError) as e:
+    print(f"Error loading model: {e}")
 
 
 @app.route("/test", methods=["GET", "POST"])
@@ -200,33 +197,12 @@ def predict():
             Elevation_m,
         ]
 
-        dict = {}
-        avg = 0
+        res = model.predict([features])
+        print("res=", res[0], type(res))
 
-        for model in all_models:
-            res = model.predict([features])
-            print("res=", res[0], type(res))
+        output = round(res[0], 4)
 
-            if res[0] == 1:
-                dict[model] = "High chance of flash flood"
-            else:
-                dict[model] = "Low chance of flash flood"
-
-            avg += res
-
-        print("Average = ", type(avg))
-
-        accuracy = avg[0] / 5
-        accuracy = round(accuracy, 4)
-
-        for result in dict:
-            print("Result", result)
-
-        prediction = all_models[0].predict([features])
-
-        response = [dict, accuracy]
-
-        return jsonify({"messsage": response})
+        return jsonify({"messsage": res, "response": output})
 
     except Exception as e:
         return jsonify({"message": e})
@@ -234,3 +210,25 @@ def predict():
 
 if __name__ == "__main__":
     app.run(port=5500, debug=True)
+
+
+"""
+   # if res[0] == 1:
+        #     dict[model] = "High chance of flash flood"
+        # else:
+        #     dict[model] = "Low chance of flash flood"
+
+        # avg += res
+
+        # print("Average = ", type(avg))
+
+        # # accuracy = avg[0] / 5
+        # # accuracy = round(accuracy, 4)
+
+        # for result in dict:
+        #     print("Result", result)
+
+        # prediction = model.predict([features])
+
+        # response = [dict, accuracy]
+"""
