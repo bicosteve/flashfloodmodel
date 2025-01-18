@@ -12,8 +12,8 @@ from helpers.helpers import (
     validate_erosion_degree_value,
     validate_sensitivity_to_capping_value,
     validate_land_use_type_value,
+    validate_continous_variables,
 )
-
 from categories.categorize import (
     CategorizeAffectedArea,
     CategorizeErosionDegree,
@@ -23,189 +23,130 @@ from categories.categorize import (
     CategorizeSurfaceStoniness,
 )
 
+
 app = Flask(__name__)
 
 try:
     model = pickle.load(open("model.pkl", "rb"))
-    print("Success", model)
+    # print("Success", model)
 except (pickle.UnpicklingError, TypeError) as e:
     print(f"Error loading model: {e}")
 
 
-@app.route("/test", methods=["GET", "POST"])
-def hello():
-    return jsonify({"message": "Hello, there testing"})
+@app.route("/", methods=["GET", "POST"])
+def index():
+    return render_template("index.html")
 
 
 @app.route("/api", methods=["POST"])
 def predict():
-    try:
-        data = request.get_json()
-        slope_position_data = data["slope_position"]
-        surface_stoniness_data = data["surface_stoniness"]
-        area_affected_data = data["area_affected"]
-        erosion_degree_data = data["erosion_degree"]
-        sensitivity_to_capping_data = data["capping_sensitivity"]
-        land_use_type_data = data["land_use"]
-        wind_speed_kmh_data = data["wind_speed"]
-        temperature_data = data["temperature"]
-        soil_moisture_data = data["soil_moisture"]
-        humidity_data = data["humidity"]
-        rainfall_mm_data = data["rainfall"]
-        river_discharge_m3s_data = data["river_discharge"]
-        elevation_m_data = data["elevation"]
 
-        isValid = validate_slope_position_value(slope_position_data)
-        if not isValid:
-            return jsonify(
-                {"message": f"Slope position {slope_position_data} is not valid"}
-            )
+    data = request.get_json()
 
-        isValid = validate_surface_stoniness_value(surface_stoniness_data)
-        if not isValid:
-            return jsonify(
-                {
-                    "message": f"Surface stoniness value {surface_stoniness_data} is not valid"
-                }
-            )
+    slope_position = data["slope-position"]
+    surface_stoniness = data["surface-stoniness"]
+    affected_area = data["affected-area"]
+    erosion_degree = data["erosion-degree"]
+    sensitivity_to_capping = data["sensitivity-to-capping"]
+    wind_speed = data["wind-speed"]
+    temperature = data["temperature"]
+    soil_moisture_content = data["soil-moisture"]
+    humidity = data["humidity"]
+    rainfall_amount = data["rainfall"]
+    river_discharge = data["river-discharge"]
+    land_use = data["land-use"]
+    elevation = data["elevation"]
 
-        isValid = validate_affected_area_value(area_affected_data)
-        if not isValid:
-            return jsonify(
-                {"message": f"Affected area value  {area_affected_data} is not valid"}
-            )
+    isValid = validate_slope_position_value(slope_position)
+    if not isValid:
+        return jsonify({"message": "Slope position is not valid"})
 
-        isValid = validate_erosion_degree_value(erosion_degree_data)
-        if not isValid:
-            return jsonify(
-                {"message": f"Erosion degree value {erosion_degree_data} is not valid"}
-            )
+    isValid = validate_erosion_degree_value(erosion_degree)
+    if not isValid:
+        return jsonify({"msg": "Invalid erosion degree"})
 
-        isValid = validate_sensitivity_to_capping_value(sensitivity_to_capping_data)
-        if not isValid:
-            return jsonify(
-                {
-                    "message": f"Sensitivity to capping {sensitivity_to_capping_data} is not valid"
-                }
-            )
+    isValid = validate_surface_stoniness_value(surface_stoniness)
+    if not isValid:
+        return jsonify({"message": f"Surface stoniness value is not valid"})
 
-        isValid = validate_land_use_type_value(land_use_type_data)
-        if not isValid:
-            return jsonify(
-                {"message": f"Land use value {land_use_type_data} is not valid"}
-            )
+    isValid = validate_affected_area_value(affected_area)
+    if not isValid:
+        return jsonify({"message": f"Affected area value is not valid"})
 
-        if len(wind_speed_kmh_data) < 1:
-            return jsonify(
-                {"message": f"Wind speed value {wind_speed_kmh_data} is not valid"}
-            )
+    isValid = validate_erosion_degree_value(erosion_degree)
+    if not isValid:
+        return jsonify({"message": f"Erosion degree value is not valid"})
 
-        if int(wind_speed_kmh_data) < 1:
-            return jsonify(
-                {"message": f"Wind speed value {wind_speed_kmh_data} is not valid"}
-            )
+    isValid = validate_sensitivity_to_capping_value(sensitivity_to_capping)
+    if not isValid:
+        return jsonify({"message": f"Sensitivity to capping is not valid"})
 
-        if len(temperature_data) < 1:
-            return jsonify(
-                {"message": f"Temperature value {temperature_data} is not valid"}
-            )
+    isValid = validate_land_use_type_value(land_use)
+    if not isValid:
+        return jsonify({"message": f"Land use value is not valid"})
 
-        if int(temperature_data) < 1:
-            return jsonify(
-                {"message": f"Temperature value {temperature_data} is not valid"}
-            )
+    isValid = validate_continous_variables(
+        wind_speed,
+        temperature,
+        soil_moisture_content,
+        humidity,
+        rainfall_amount,
+        river_discharge,
+        elevation,
+    )
 
-        if len(soil_moisture_data) < 1:
-            return jsonify(
-                {"message": f"Soil moisture value {soil_moisture_data} is not valid"}
-            )
+    if not isValid:
+        return jsonify({"message": "Invalid continues variables"})
 
-        if int(soil_moisture_data) < 1:
-            return jsonify(
-                {"message": f"Soil moisture value {soil_moisture_data} is not valid"}
-            )
+    # soil_moisture_content = request.form["soil-moisture"]
+    # rainfall_amount = request.form["rainfall-amount"]
+    # river_discharge = request.form["river-discharge"]
+    # erosion_degree = request.form["erosion-degree"]
 
-        if len(humidity_data) < 1:
-            return jsonify({"message": f"Humidity value {humidity_data} is not valid"})
+    Erosion_degree = CategorizeErosionDegree(erosion_degree)
+    Slope_Position = CategorizeSlopePosition(slope_position)
+    Surface_Stoniness = CategorizeSurfaceStoniness(surface_stoniness)
+    Area_affected = CategorizeAffectedArea(affected_area)
+    Erosion_degree = CategorizeErosionDegree(erosion_degree)
+    Sensitivity_to_capping = CategorizeSensitivityToCapping(sensitivity_to_capping)
+    Land_Use_Type = CategorizeLandUseType(land_use)
 
-        if int(humidity_data) < 1:
-            return jsonify({"message": f"Humidity value {humidity_data} is not valid"})
+    Wind_Speed_kmh = float(wind_speed)
+    Temperature = float(temperature)
+    Soil_Moisture = float(soil_moisture_content)
+    Humidity = float(humidity)
+    Rainfall_mm = float(rainfall_amount)
+    River_Discharge_m3s = float(river_discharge)
+    Elevation_m = float(elevation)
+    Soil_Moisture = float(soil_moisture_content)
+    Rainfall_mm = float(rainfall_amount)
 
-        if len(rainfall_mm_data) < 1:
-            return jsonify(
-                {"message": f"Rainfall value {rainfall_mm_data} is not valid"}
-            )
+    features = [
+        Slope_Position,
+        Surface_Stoniness,
+        Area_affected,
+        Erosion_degree,
+        Sensitivity_to_capping,
+        Wind_Speed_kmh,
+        Temperature,
+        Soil_Moisture,
+        Humidity,
+        Rainfall_mm,
+        River_Discharge_m3s,
+        Land_Use_Type,
+        Elevation_m,
+    ]
 
-        if int(rainfall_mm_data) < 1:
-            return jsonify(
-                {"message": f"Rainfall value {rainfall_mm_data} is not valid"}
-            )
+    final_features = np.array([features])
 
-        if len(river_discharge_m3s_data) < 1:
-            return jsonify(
-                {
-                    "message": f"River discharge value {river_discharge_m3s_data} is not valid"
-                }
-            )
+    res = model.predict(final_features)
+    print("res=", res[0], type(res))
 
-        if int(river_discharge_m3s_data) < 1:
-            return jsonify(
-                {
-                    "message": f"River discharge value {river_discharge_m3s_data} is not valid"
-                }
-            )
+    output = round(res[0].item(), 2)
 
-        if len(elevation_m_data) < 1:
-            return jsonify(
-                {"message": f"Elevation value {elevation_m_data} is not valid"}
-            )
+    return {"results": output}
 
-        if int(elevation_m_data) < 1:
-            return jsonify(
-                {"message": f"Elevation value {elevation_m_data} is not valid"}
-            )
-
-        Slope_Position = CategorizeSlopePosition(slope_position_data)
-        Surface_Stoniness = CategorizeSurfaceStoniness(surface_stoniness_data)
-        Area_affected = CategorizeAffectedArea(area_affected_data)
-        Erosion_degree = CategorizeErosionDegree(erosion_degree_data)
-        Sensitivity_to_capping = CategorizeSensitivityToCapping(
-            sensitivity_to_capping_data
-        )
-        Wind_Speed_kmh = int(wind_speed_kmh_data)
-        Temperature = int(temperature_data)
-        Soil_Moisture = int(soil_moisture_data)
-        Humidity = int(humidity_data)
-        Rainfall_mm = int(rainfall_mm_data)
-        River_Discharge_m3s = int(river_discharge_m3s_data)
-        Land_Use_Type = CategorizeLandUseType(land_use_type_data)
-        Elevation_m = int(elevation_m_data)
-
-        features = [
-            Slope_Position,
-            Surface_Stoniness,
-            Area_affected,
-            Erosion_degree,
-            Sensitivity_to_capping,
-            Wind_Speed_kmh,
-            Temperature,
-            Soil_Moisture,
-            Humidity,
-            Rainfall_mm,
-            River_Discharge_m3s,
-            Land_Use_Type,
-            Elevation_m,
-        ]
-
-        res = model.predict([features])
-        print("res=", res[0], type(res))
-
-        output = round(res[0], 4)
-
-        return jsonify({"messsage": res, "response": output})
-
-    except Exception as e:
-        return jsonify({"message": e})
+    # return render_template("results.html", predictions=output)
 
 
 if __name__ == "__main__":

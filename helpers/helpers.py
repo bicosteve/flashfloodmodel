@@ -1,3 +1,14 @@
+def validate_erosion_degree_value(value):
+    erosion_degree_accepted_values = ["E", "M", "S", "V"]
+    clean_string = value.strip()
+    if len(clean_string) < 1:
+        return False
+
+    clean_string = clean_string.upper()
+
+    return value in erosion_degree_accepted_values
+
+
 def validate_slope_position_value(value):
     slope_position_accepted_values = ["A", "D", "H", "L", "M"]
     """
@@ -36,17 +47,6 @@ def validate_affected_area_value(value):
     return value in area_affected_accepted_values
 
 
-def validate_erosion_degree_value(value):
-    erosion_degree_accepted_values = ["E", "M", "S", "V"]
-    clean_string = value.strip()
-    if len(clean_string) < 1:
-        return False
-
-    clean_string = clean_string.upper()
-
-    return value in erosion_degree_accepted_values
-
-
 def validate_sensitivity_to_capping_value(value):
     sensitivity_to_capping_accepted_values = ["M", "N", "S", "W"]
     clean_string = value.strip()
@@ -67,3 +67,32 @@ def validate_land_use_type_value(value):
 
     clean_string = clean_string.upper()
     return value in land_use_type_accepted_values
+
+
+def validate_continous_variables(
+    wind, temperature, soil, humidity, rainfall, river, elevation
+):
+    if (
+        wind < 1
+        and temperature < 1
+        and soil < 1
+        and humidity < 1
+        and rainfall < 1
+        and river < 1
+        and elevation < 1
+    ):
+        return False
+
+    # if (
+    #     float(wind)
+    #     and float(temperature)
+    #     and float(soil)
+    #     and float(humidity)
+    #     and float(rainfall)
+    #     and float(river)
+    #     and float(elevation)
+    # ):
+
+    #     return False
+
+    return True
