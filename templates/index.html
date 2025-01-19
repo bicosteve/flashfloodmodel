@@ -15,23 +15,82 @@
         <div class="col-6">
             <h1 id="title">Flash Flood Prediction Model</h1>
             <form action="/api" id="survey" method="post">
-                <div class="mb-3">
-                    <label for="soil-moisture" class="form-label">Soil Moisture Content</label>
-                    <input type="text" name="soil-moisture" class="form-control" id="soil-moisture" aria-describedby="soil-moisture">
-                  </div>
-                  <div class="mb-3">
-                    <label for="rainfall-amount" class="form-label">Rainfall Amount</label>
-                    <input type="text" class="form-control" name="rainfall-amount" id="rainfall-amount">
-                  </div>
-                  <div class="mb-3">
-                    <label for="river-discharge" class="form-label">River Discharge</label>
-                    <input type="text" class="form-control" name="river-discharge" id="river-discharge">
-                  </div>
-                  <div class="mb-3">
-                    <label for="erosion-degree" class="form-label">Erosion Degree</label>
-                    <input type="text" class="form-control" name="erosion-degree" id="erosion-degree">
-                  </div>
-                  <button type="submit" class="btn btn-primary">Submit</button>
+              <select class="form-select" name="slope-position" id="slope-position" >
+                <option selected>Slope Position</option>
+                <option value="A">A</option>
+                <option value="D">D</option>
+                <option value="H">H</option>
+                <option value="L">L</option>
+                <option value="M">M</option>
+              </select>
+              <select class="form-select" name="surface-stoniness" id="surface-stoniness" >
+                <option selected>Surface Stoniness</option>
+                <option value="A">A</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="F">F</option>
+                <option value="M">M</option>
+                <option value="N">N</option>
+                <option value="V">V</option>
+              </select>
+              <select class="form-select" name="affected-area" id="affected-area" >
+                <option selected>Affected Area</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+              <select class="form-select" name="erosion-degree" id="erosion-degree" >
+                <option selected>Erosion Degree</option>
+                <option value="E">E</option>
+                <option value="M">M</option>
+                <option value="S">S</option>
+                <option value="V">V</option>
+              </select>
+              <select class="form-select" name="sensitivity-to-capping" >
+                <option selected>Sensitivity to Capping</option>
+                <option value="M">M</option>
+                <option value="N">N</option>
+                <option value="S">S</option>
+                <option value="W">W</option>
+              </select>
+              <div class="mb-1">
+                <label for="wind-speed" class="form-label">Wind Speed</label>
+                <input required type="text" name="wind-speed" class="form-control" id="wind-speed">
+              </div>
+              <div class="mb-1">
+                <label for="temperature" class="form-label">Temperature</label>
+                <input required type="text" name="temperature" class="form-control" id="temperature">
+              </div>
+              <div class="mb-1">
+                  <label for="soil-moisture" class="form-label">Soil Moisture Content</label>
+                  <input required type="text" name="soil-moisture" class="form-control" id="soil-moisture">
+                </div>
+                <div class="mb-1">
+                  <label for="humidity" class="form-label">Humidity</label>
+                  <input required type="text" class="form-control" name="humidity" id="humidity">
+                </div>
+                <div class="mb-1">
+                  <label for="rainfall-amount" class="form-label">Rainfall</label>
+                  <input required type="text" class="form-control" name="rainfall" id="rainfall-amount">
+                </div>
+                <div class="mb-1">
+                  <label for="river-discharge" class="form-label">River Discharge</label>
+                  <input required type="text" class="form-control" name="river-discharge" id="river-discharge">
+                </div>
+                <select class="form-select" name="land-use" id="land-use" >
+                  <option selected>Land Use Type</option>
+                  <option value="Forest">Forest</option>
+                  <option value="Agriculture">Agriculture</option>
+                  <option value="Urban">Urban</option>
+                  <option value="Wetland">Wetland</option>
+                </select>
+                <div class="mb-1">
+                  <label for="erosion-degree" class="form-label">Erosion Degree</label>
+                  <input type="text" class="form-control" name="erosion-degree" id="erosion-degree">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>
         <div class="col"></div>

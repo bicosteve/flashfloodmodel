@@ -4,19 +4,19 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-section {
-  margin-top: 100px;
-}
+/* section {
+  margin-top: 10px;
+} */
 
 #title {
   text-align: center;
-  font-size: 35px;
+  font-size: 30px;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  margin-top: 150px;
+  margin-top: 10px;
 }
 
 label {
@@ -24,11 +24,16 @@ label {
   color: #000000;
 }
 
-input {
+input,
+select {
   border-color: #000000 !important;
   border-radius: 50x !important;
   padding: 10px;
   font-size: 0.9rem !important;
+}
+
+select {
+  margin: 5px 0 !important;
 }
 
 .card {
