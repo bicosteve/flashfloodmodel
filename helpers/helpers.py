@@ -72,18 +72,8 @@ def validate_land_use_type_value(value):
     return value in land_use_type_accepted_values
 
 
-def validate_continous_variables(
-    wind, temperature, soil, humidity, rainfall, river, elevation
-):
-    if (
-        wind < 1
-        and temperature < 1
-        and soil < 1
-        and humidity < 1
-        and rainfall < 1
-        and river < 1
-        and elevation < 1
-    ):
+def validate_continous_variables(soil, rainfall, river):
+    if soil < 1 and rainfall < 1 and river < 1:
         return False
 
     return True

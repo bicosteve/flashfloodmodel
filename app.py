@@ -1,28 +1,18 @@
 import pickle
 import math as math
+import traceback
 
 
 import numpy as np
 from flask import Flask, flash, request, jsonify, render_template, redirect
 
 from helpers.helpers import (
-    validate_slope_position_value,
-    validate_surface_stoniness_value,
-    validate_affected_area_value,
     validate_erosion_degree_value,
-    validate_sensitivity_to_capping_value,
-    validate_land_use_type_value,
     validate_continous_variables,
     load_env_vars,
 )
-from categories.categorize import (
-    CategorizeAffectedArea,
-    CategorizeErosionDegree,
-    CategorizeLandUseType,
-    CategorizeSensitivityToCapping,
-    CategorizeSlopePosition,
-    CategorizeSurfaceStoniness,
-)
+from categories.categorize import CategorizeErosionDegree
+
 
 from database.db import connection
 
@@ -31,9 +21,8 @@ app = Flask(__name__)
 
 
 try:
-    rf_model = pickle.load(open("./models/model.pkl", "rb"))
+    rf_model = pickle.load(open("./models/rf_model.pkl", "rb"))
     svc_model = pickle.load(open("./models/svc_model.pkl", "rb"))
-    ann_model = pickle.load(open("./models/ann_model.pkl", "rb"))
     lr_model = pickle.load(open("./models/lr_model.pkl", "rb"))
     env_vars = load_env_vars("env.toml")
     print("Success loading models & variables")
@@ -48,102 +37,46 @@ mysql = connection(
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    return jsonify({"msg": "This is test"})
 
 
-@app.route("/api", methods=["POST"])
+@app.route("/api", methods=["GET", "POST"])
 def predict_api():
-    conn = None
-    cursone = None
     try:
         data = request.get_json()
-        slope_position = data["slope-position"]
-        surface_stoniness = data["surface-stoniness"]
-        affected_area = data["affected-area"]
         erosion_degree = data["erosion-degree"]
-        sensitivity_to_capping = data["sensitivity-to-capping"]
-        wind_speed = data["wind-speed"]
-        temperature = data["temperature"]
-        soil_moisture_content = data["soil-moisture"]
-        humidity = data["humidity"]
         rainfall_amount = data["rainfall"]
         river_discharge = data["river-discharge"]
-        land_use = data["land-use"]
-        elevation = data["elevation"]
-
-        isValid = validate_slope_position_value(slope_position)
-        if not isValid:
-            return jsonify({"message": "Slope position is not valid"})
+        soil_moisture_content = data["soil-moisture"]
 
         isValid = validate_erosion_degree_value(erosion_degree)
         if not isValid:
             return jsonify({"msg": "Invalid erosion degree"})
-
-        isValid = validate_surface_stoniness_value(surface_stoniness)
-        if not isValid:
-            return jsonify({"message": f"Surface stoniness value is not valid"})
-
-        isValid = validate_affected_area_value(affected_area)
-        if not isValid:
-            return jsonify({"message": f"Affected area value is not valid"})
-
         isValid = validate_erosion_degree_value(erosion_degree)
         if not isValid:
             return jsonify({"message": f"Erosion degree value is not valid"})
 
-        isValid = validate_sensitivity_to_capping_value(sensitivity_to_capping)
-        if not isValid:
-            return jsonify({"message": f"Sensitivity to capping is not valid"})
-
-        isValid = validate_land_use_type_value(land_use)
-        if not isValid:
-            return jsonify({"message": f"Land use value is not valid"})
-
         isValid = validate_continous_variables(
-            wind_speed,
-            temperature,
             soil_moisture_content,
-            humidity,
             rainfall_amount,
             river_discharge,
-            elevation,
         )
 
         if not isValid:
             return jsonify({"message": "Invalid continues variables"})
 
         Erosion_degree = CategorizeErosionDegree(erosion_degree)
-        Slope_Position = CategorizeSlopePosition(slope_position)
-        Surface_Stoniness = CategorizeSurfaceStoniness(surface_stoniness)
-        Area_affected = CategorizeAffectedArea(affected_area)
-        Erosion_degree = CategorizeErosionDegree(erosion_degree)
-        Sensitivity_to_capping = CategorizeSensitivityToCapping(sensitivity_to_capping)
-        Land_Use_Type = CategorizeLandUseType(land_use)
-
-        Wind_Speed_kmh = float(wind_speed)
-        Temperature = float(temperature)
         Soil_Moisture = float(soil_moisture_content)
-        Humidity = float(humidity)
         Rainfall_mm = float(rainfall_amount)
         River_Discharge_m3s = float(river_discharge)
-        Elevation_m = float(elevation)
         Soil_Moisture = float(soil_moisture_content)
         Rainfall_mm = float(rainfall_amount)
 
         features = [
-            Slope_Position,
-            Surface_Stoniness,
-            Area_affected,
             Erosion_degree,
-            Sensitivity_to_capping,
-            Wind_Speed_kmh,
-            Temperature,
             Soil_Moisture,
-            Humidity,
             Rainfall_mm,
             River_Discharge_m3s,
-            Land_Use_Type,
-            Elevation_m,
         ]
 
         final_features = np.array([features])
@@ -159,14 +92,14 @@ def predict_api():
         average = rf_output + svc_output + lr_output
         predict_text = ""
 
-        accuracy = average / 3
+        accuracy = average / 3  # -----> maintain the result of each.NB 3 is also ok
 
         if accuracy == 1:
             predict_text = "High chances of flash floods"
         elif accuracy > 0.5:
             predict_text = "Medium chances of flash floods"
         else:
-            predict_text = "High chances of flash floods"
+            predict_text = "Low chances of flash floods"
 
         return jsonify(
             {
@@ -178,7 +111,13 @@ def predict_api():
             }
         )
     except Exception as e:
+        error_details = {
+            "error_type": type(e).__name__,  # Name of the exception class
+            "error_message": str(e),  # Error message
+            "stack_trace": traceback.format_exc(),  # Full stack trace as a string
+        }
         print("all")
+        return jsonify({"msg": error_details})
 
 
 @app.route("/add", methods=["POST"])
@@ -186,88 +125,26 @@ def predict():
     conn = None
     cursor = None
     try:
-        slope_position = request.form["slope-position"]
-        surface_stoniness = request.form["surface-stoniness"]
-        affected_area = request.form["affected-area"]
         erosion_degree = request.form["erosion-degree"]
-        sensitivity_to_capping = request.form["sensitivity-to-capping"]
-        wind_speed = request.form["wind-speed"]
-        temperature = request.form["temperature"]
         soil_moisture_content = request.form["soil-moisture"]
-        humidity = request.form["humidity"]
         rainfall_amount = request.form["rainfall"]
         river_discharge = request.form["river-discharge"]
-        land_use = request.form["land-use"]
-        elevation = request.form["elevation"]
 
-        slope_position = request.form["slope-position"]
-        surface_stoniness = request.form["surface-stoniness"]
-        affected_area = request.form["affected-area"]
-        erosion_degree = request.form["erosion-degree"]
-        sensitivity_to_capping = request.form["sensitivity-to-capping"]
-        wind_speed = request.form["wind-speed"]
-        temperature = request.form["temperature"]
-        soil_moisture_content = request.form["soil-moisture"]
-        humidity = request.form["humidity"]
-        rainfall_amount = request.form["rainfall"]
-        river_discharge = request.form["river-discharge"]
-        land_use = request.form["land-use"]
-        elevation = request.form["elevation"]
-
-        isValid = validate_slope_position_value(slope_position)
         isValid = validate_erosion_degree_value(erosion_degree)
-        isValid = validate_surface_stoniness_value(surface_stoniness)
-        isValid = validate_affected_area_value(affected_area)
         isValid = validate_erosion_degree_value(erosion_degree)
-        isValid = validate_sensitivity_to_capping_value(sensitivity_to_capping)
-        isValid = validate_land_use_type_value(land_use)
         isValid = validate_continous_variables(
-            wind_speed,
-            temperature,
-            soil_moisture_content,
-            humidity,
-            rainfall_amount,
-            river_discharge,
-            elevation,
+            soil_moisture_content, rainfall_amount, river_discharge
         )
 
         if isValid and request.method == "POST":
-
             Erosion_degree = CategorizeErosionDegree(erosion_degree)
-            Slope_Position = CategorizeSlopePosition(slope_position)
-            Surface_Stoniness = CategorizeSurfaceStoniness(surface_stoniness)
-            Area_affected = CategorizeAffectedArea(affected_area)
-            Erosion_degree = CategorizeErosionDegree(erosion_degree)
-            Sensitivity_to_capping = CategorizeSensitivityToCapping(
-                sensitivity_to_capping
-            )
-            Land_Use_Type = CategorizeLandUseType(land_use)
-
-            Wind_Speed_kmh = float(wind_speed)
-            Temperature = float(temperature)
             Soil_Moisture = float(soil_moisture_content)
-            Humidity = float(humidity)
             Rainfall_mm = float(rainfall_amount)
             River_Discharge_m3s = float(river_discharge)
-            Elevation_m = float(elevation)
             Soil_Moisture = float(soil_moisture_content)
             Rainfall_mm = float(rainfall_amount)
 
-            features = [
-                Slope_Position,
-                Surface_Stoniness,
-                Area_affected,
-                Erosion_degree,
-                Sensitivity_to_capping,
-                Wind_Speed_kmh,
-                Temperature,
-                Soil_Moisture,
-                Humidity,
-                Rainfall_mm,
-                River_Discharge_m3s,
-                Land_Use_Type,
-                Elevation_m,
-            ]
+            features = [Erosion_degree, Soil_Moisture, Rainfall_mm, River_Discharge_m3s]
 
             final_features = np.array([features])
 
