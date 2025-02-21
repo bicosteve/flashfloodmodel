@@ -1,8 +1,12 @@
-pandas 
-numpy
-seaborn 
+toml
+PyMySQL
+Flask
 matplotlib
+numpy
+pandas 
 scikit-learn
-tensorflow 
-flask
+seaborn
+tensorflow
+cryptography
+
 

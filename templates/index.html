@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/styles/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Option 1: Include in HTML -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <title>Flash Flood Occurrence Predictor</title>
+</head>
+<body>
+   <section>
+    <div class="container">
+            <h1 id="title">Flash Flood Prediction Model</h1>
+            <div class="row">
+              <div class="col-3"></div>
+              <div class="col-6">
+                <form class="" action="/api" id="survey" method="post">
+                  <!-- 2 column grid layout with text inputs for soil moisture & rainfall -->
+                  <div class="row mb-4">
+                    <div class="col">
+                      <div data-mdb-input-init class="form-outline">
+                        <label class="form-label" for="soil-moisture">Soil Moisture Content</label>
+                        <input type="number" name="soil-moisture" id="soil-moisture" class="form-control" />
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div data-mdb-input-init class="form-outline">
+                        <label class="form-label" for="rainfall">Rainfall (mm)</label>
+                        <input name="rainfall" type="number" id="rainfall" class="form-control" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <!-- River Discharge Input -->
+                      <div data-mdb-input-init class="form-outline mb-4">
+                        <label class="form-label" for="river-discharge">River Discharge Volume</label>
+                        <input type="number" name="river-discharge" id="river-discharge" class="form-control" />
+                      </div>
+                    </div>
+                    <div class="col">
+                      <!-- Erosion Degree Input -->
+                      <div data-mdb-input-init class="form-outline mb-4">
+                        <label for="erosion-degree">Erosion Degree</label>
+                        <select class="form-control" name="erosion-degree" id="erosion-degree">
+                          <option value="S">Slight Degree</option>
+                          <option value="M">Medium Degree</option>
+                          <option value="V">High Degree</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Submit button -->
+                  <button data-mdb-ripple-init type="button" class="btn btn-primary btn-block mb-4">Submit</button>
+                </form>  
+
+                <h1 id="title">Results</h1>
+                
+                 <!--RESULT SECTION-->
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Algorithm</th>
+                        <th>Results</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Random Forest</td>
+                        <td>1</td>
+                      </tr>
+                      <tr>
+                        <td>Support Vector Machine</td>
+                        <td>1</td>
+                      </tr>
+                      <tr>
+                        <td>Logistic Regression</td>
+                        <td>1</td>
+                      </tr>
+                      <tr>
+                        <td>Accuracy</td>
+                        <td>1</td>
+                      </tr>
+                      <tr>
+                        <td>Prediction</td>
+                        <td>Likely to rain</td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+              <div class="col-3"></div>
+            </div>
+        </div>
+    </div>
+   </section>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</html>

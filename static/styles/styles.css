@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+section {
+  margin-top: 10px;
+}
+
+#title {
+  text-align: center;
+  font-size: 30px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+label {
+  font-weight: 500;
+  color: #000000;
+}
+
+input,
+select {
+  border-color: #000000 !important;
+  border-radius: 50x !important;
+  padding: 10px;
+  font-size: 0.9rem !important;
+}
+
+select {
+  margin: 5px 0 !important;
+}
+
+.card {
+  margin: 20px 50px;
+  width: 100%;
+}
+
+.details {
+  padding: 10px 20px;
+}
+
+.details h3 {
+  text-align: center;
+  font-size: 1.5rem;
+}
