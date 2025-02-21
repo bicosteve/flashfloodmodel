@@ -4,7 +4,7 @@ import traceback
 
 
 import numpy as np
-from flask import Flask, flash, request, jsonify, render_template, redirect
+from flask import Flask, flash, request, jsonify, render_template, redirect, url_for
 
 from helpers.helpers import (
     validate_erosion_degree_value,
@@ -125,64 +125,74 @@ def predict():
     conn = None
     cursor = None
     try:
-        erosion_degree = request.form["erosion-degree"]
-        soil_moisture_content = request.form["soil-moisture"]
-        rainfall_amount = request.form["rainfall"]
-        river_discharge = request.form["river-discharge"]
+        if request.method == "POST":
+            erosion_degree = request.form["erosion-degree"]
+            soil_moisture_content = request.form["soil-moisture"]
+            rainfall_amount = request.form["rainfall"]
+            river_discharge = request.form["river-discharge"]
 
-        isValid = validate_erosion_degree_value(erosion_degree)
-        isValid = validate_erosion_degree_value(erosion_degree)
-        isValid = validate_continous_variables(
-            soil_moisture_content, rainfall_amount, river_discharge
-        )
+            # Validate the inputs
+            is_valid_erosion_degree = validate_erosion_degree_value(erosion_degree)
+            is_valid_continuous_vars = validate_continous_variables(
+                soil_moisture_content, rainfall_amount, river_discharge
+            )
 
-        if isValid and request.method == "POST":
-            Erosion_degree = CategorizeErosionDegree(erosion_degree)
-            Soil_Moisture = float(soil_moisture_content)
-            Rainfall_mm = float(rainfall_amount)
-            River_Discharge_m3s = float(river_discharge)
-            Soil_Moisture = float(soil_moisture_content)
-            Rainfall_mm = float(rainfall_amount)
+            if is_valid_erosion_degree and is_valid_continuous_vars:
+                Erosion_degree = CategorizeErosionDegree(erosion_degree)
+                Soil_Moisture = float(soil_moisture_content)
+                Rainfall_mm = float(rainfall_amount)
+                River_Discharge_m3s = float(river_discharge)
+                Soil_Moisture = float(soil_moisture_content)
+                Rainfall_mm = float(rainfall_amount)
 
-            features = [Erosion_degree, Soil_Moisture, Rainfall_mm, River_Discharge_m3s]
+                features = [
+                    Erosion_degree,
+                    Soil_Moisture,
+                    Rainfall_mm,
+                    River_Discharge_m3s,
+                ]
 
-            final_features = np.array([features])
+                final_features = np.array([features])
 
-            rf_res = rf_model.predict(final_features)
-            svc_res = svc_model.predict(final_features)
-            lr_res = lr_model.predict(final_features)
+                rf_res = rf_model.predict(final_features)
+                svc_res = svc_model.predict(final_features)
+                lr_res = lr_model.predict(final_features)
 
-            rf_output = round(rf_res[0].item(), 2)
-            svc_output = round(svc_res[0].item(), 2)
-            lr_output = round(lr_res[0].item(), 2)
+                rf_output = round(rf_res[0].item(), 2)
+                svc_output = round(svc_res[0].item(), 2)
+                lr_output = round(lr_res[0].item(), 2)
 
-            average = rf_output + svc_output + lr_output
-            predict_text = ""
+                average = rf_output + svc_output + lr_output
+                predict_text = ""
 
-            accuracy = average / 3
+                accuracy = average / 3
 
-            if accuracy == 1:
-                predict_text = "High chances of flash floods"
-            elif accuracy > 0.5:
-                predict_text = "Medium chances of flash floods"
-            else:
-                predict_text = "High chances of flash floods"
+                if accuracy == 1:
+                    predict_text = "High chances of flash floods"
+                elif accuracy > 0.5:
+                    predict_text = "Medium chances of flash floods"
+                else:
+                    predict_text = "High chances of flash floods"
 
-            q = """
-                INSERT INTO flood_data(prediction_text,lr_model,rf_model,svc_model,accuracy) VALUES(%s,%s,%s,%s,%s)
-                """
-            data = (predict_text, lr_model, rf_model, svc_model, accuracy)
+                q = """
+                    INSERT INTO flood_data(prediction_text,lr_model,rf_model,svc_model,accuracy) VALUES(%s,%s,%s,%s,%s)
+                    """
+                data = (predict_text, lr_model, rf_model, svc_model, accuracy)
 
-            conn = mysql.connect()
-            cursor = conn.cursor()
+                conn = mysql.connect()
+                cursor = conn.cursor()
 
-            cursor.execute(q, data)
-            conn.commit()
+                cursor.execute(q, data)
+                conn.commit()
 
-            flash("Data added successfully!")
-            return redirect("/")
+                flash("Data added successfully!")
+                return redirect(url_for("index"))
         else:
-            return "Something went wrong!!"
+            results = cursor.execute("SELECT * FROM flood_data")
+            if results > 0:
+                flood_details = cursor.fetchall()
+                return render_template("index.html", details=flood_details)
+            return render_template("index.html")
     except Exception as e:
         print(f"An error {str(e)}")
     finally:
