@@ -16,7 +16,7 @@
             <div class="row">
               <div class="col-3"></div>
               <div class="col-6">
-                <form class="" action="/api" id="survey" method="post">
+                <form method="POST" action="/" id="survey" >
                   <!-- 2 column grid layout with text inputs for soil moisture & rainfall -->
                   <div class="row mb-4">
                     <div class="col">
@@ -46,7 +46,7 @@
                       <div data-mdb-input-init class="form-outline mb-4">
                         <label for="erosion-degree">Erosion Degree</label>
                         <select class="form-control" name="erosion-degree" id="erosion-degree">
-                          <option value="S">Slight Degree</option>
+                          <option value="S">Low Degree</option>
                           <option value="M">Medium Degree</option>
                           <option value="V">High Degree</option>
                         </select>
@@ -54,42 +54,8 @@
                     </div>
                   </div>
                   <!-- Submit button -->
-                  <button data-mdb-ripple-init type="button" class="btn btn-primary btn-block mb-4">Submit</button>
+                  <button data-mdb-ripple-init type="submit" class="btn btn-primary btn-block mb-4">Submit</button>
                 </form>  
-
-                <h1 id="title">Results</h1>
-                
-                 <!--RESULT SECTION-->
-                  <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Algorithm</th>
-                        <th>Results</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Random Forest</td>
-                        <td>1</td>
-                      </tr>
-                      <tr>
-                        <td>Support Vector Machine</td>
-                        <td>1</td>
-                      </tr>
-                      <tr>
-                        <td>Logistic Regression</td>
-                        <td>1</td>
-                      </tr>
-                      <tr>
-                        <td>Accuracy</td>
-                        <td>1</td>
-                      </tr>
-                      <tr>
-                        <td>Prediction</td>
-                        <td>Likely to rain</td>
-                      </tr>
-                    </tbody>
-                  </table>
               </div>
               <div class="col-3"></div>
             </div>
