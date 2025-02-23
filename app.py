@@ -77,41 +77,49 @@ def predict():
             elif accuracy > 0.5:
                 predict_text = "Medium chances of flash floods"
             else:
-                predict_text = "High chances of flash floods"
+                predict_text = "Low chances of flash floods"
 
-            cursor = mysql.cursor()
+            try:
+                cursor = mysql.cursor()
 
-            q = """
-                INSERT INTO flood_data(prediction_text,lr_model,rf_model,svc_model,accuracy) VALUES(%s,%s,%s,%s,%s)
-                """
-            data = (predict_text, lr_output, rf_output, svc_output, accuracy)
+                q = """
+                    INSERT INTO flood_data(prediction_text,lr_model,rf_model,svc_model,accuracy) VALUES(%s,%s,%s,%s,%s)
+                    """
+                data = (predict_text, lr_output, rf_output, svc_output, accuracy)
 
-            print(data)
+                cursor.execute(q, data)
+                mysql.commit()
+                cursor.close()
 
-            cursor.execute(q, data)
-            mysql.commit()
-
-            flash("Data added successfully!")
-            return redirect("/results")
+                flash("Data added successfully!")
+                return redirect(url_for("results"))
+            except Exception as e:
+                flash(f"An error occured: {str(e)}", "error")
+                return redirect(url_for("predict"))
         else:
-            print("invalid results")
+            error = "Invalid input data"
+            flash(f"{error}", "error")
+            return redirect(url_for("predict"))
     return render_template("index.html")
 
 
 @app.route("/results")
 def results():
     try:
+        q = "SELECT * FROM flood_data ORDER BY created_at DESC LIMIT 1"
         cursor = mysql.cursor()
-        rows = cursor.execute("SELECT * FROM flood_data")
+        rows = cursor.execute(q)
         if rows > 0:
             flood_details = cursor.fetchall()
+            print(flood_details[0])
+            cursor.close()
             return render_template("results.html", details=flood_details)
-        return "An error occurred while fetching results"
-    except Exception as e:
-        print(e)
-    finally:
+        error = "Failed to fetch data"
         cursor.close()
-        mysql.close()
+        return render_template("index.html", msg=error)
+    except Exception as e:
+        flash(f"An error occured {str(e)}", "error")
+        return redirect(url_for("predict"))
 
 
 if __name__ == "__main__":

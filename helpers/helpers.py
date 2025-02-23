@@ -26,11 +26,11 @@ def validate_erosion_degree(value):
 
 
 def validate_continous_variables(soil, rainfall, river):
-    soil = int(soil)
-    rainfall = int(rainfall)
-    river = int(river)
+    soil = float(soil)
+    rainfall = float(rainfall)
+    river = float(river)
 
-    if soil < 1 and rainfall < 1 and river < 1:
+    if soil <= 0 and rainfall <= 0 and river <= 0:
         return False
 
     return True

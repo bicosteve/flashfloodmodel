@@ -4,7 +4,7 @@ CREATE TABLE flood_data (
     `lr_model` INT NOT NULL, 
     `rf_model` INT NOT NULL, 
     `svc_model` INT NOT NULL,
-    `accuracy` INT NOT NULL, 
+    `accuracy` DECIMAL(10,2) NOT NULL, 
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

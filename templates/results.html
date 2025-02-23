@@ -16,41 +16,40 @@
             <div class="row">
               <div class="col-3"></div>
               <div class="col-6">
-                {% if details %}
-                  {% for detail in details %}
                     <h1 id="title">Results</h1>
-                  
-                    <!--RESULT SECTION-->
-                    <table class="table table-bordered">
-                      <thead>
-                        <tr>
-                          <th>Algorithm</th>
-                          <th>Results</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Random Forest</td>
-                          <td>{{ detail[4] }}</td>
-                        </tr>
-                        <tr>
-                          <td>Support Vector Machine</td>
-                          <td>{{ detail[3] }}</td>
-                        </tr>
-                        <tr>
-                          <td>Logistic Regression</td>
-                          <td>{{ detail[2] }}</td>
-                        </tr>
-                        <tr>
-                          <td>Accuracy</td>
-                          <td>{{ detail[6] }}</td>
-                        </tr>
-                        <tr>
-                          <td>Prediction</td>
-                          <td>{{ detail[0] }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    {% if details %}
+                      {% for detail in details %}
+                      <!--RESULT SECTION-->
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Details</th>
+                            <th>Results</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>Random Forest</td>
+                            <td>{{ detail.rf_model }}</td>
+                          </tr>
+                          <tr>
+                            <td>Support Vector Machine</td>
+                            <td>{{ detail.svc_model }}</td>
+                          </tr>
+                          <tr>
+                            <td>Logistic Regression</td>
+                            <td>{{ detail.lr_model }}</td>
+                          </tr>
+                          <tr>
+                            <td>Accuracy</td>
+                            <td>{{ detail.accuracy }}</td>
+                          </tr>
+                          <tr>
+                            <td>Prediction</td>
+                            <td>{{ detail.prediction_text }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                   {% endfor %}
                 {% else %}
                   <p>No results here</p>
