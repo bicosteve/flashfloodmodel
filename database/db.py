@@ -2,9 +2,7 @@ import pymysql
 
 
 # connection to db
-
-
-def connection(host, user, password, db):
+def db_connection(host, user, password, db):
     try:
         connection = pymysql.connect(
             host=host,
