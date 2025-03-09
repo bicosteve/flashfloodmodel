@@ -104,7 +104,7 @@ def predict():
 def results():
     flood_details = db.get_data()
 
-    models = ["Random Forest", "Support Vector", "Logistic Regression", "Accuracy"]
+    models = ["Random Forest", "Support Vector", "Logistic Regression", "Average"]
     rf_prediction = flood_details.get("rf_model")
     lr_prediction = flood_details.get("lr_model")
     svc_prediction = flood_details.get("svc_model")
