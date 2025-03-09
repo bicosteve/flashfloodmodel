@@ -14,48 +14,51 @@
     <div class="container">
             <h1 id="title">Flash Flood Prediction Model</h1>
             <div class="row">
-              <div class="col-3"></div>
+              {% if values %}
+                <div class="col-6 mt-5">
+                      <h1 id="title">Details</h1>
+                        <!--RESULT SECTION-->
+                        <table class="table table-bordered">
+                          <thead>
+                            <tr>
+                              <th>Detail</th>
+                              <th>Value</th>
+                            </tr>
+                          </thead>
+                            <tbody>
+                              <tr>
+                                <td>Random Forest</td>
+                                <td>{{ values[0] }}</td>
+                              </tr>
+                              <tr>
+                                <td>Support Vector Machine</td>
+                                <td>{{ values[2] }}</td>
+                              </tr>
+                              <tr>
+                                <td>Logistic Regression</td>
+                                <td>{{ values[1] }}</td>
+                              </tr>
+                              <tr>
+                                <td>Accuracy</td>
+                                <td>{{ values[3] }}</td>
+                              </tr>
+                              <tr>
+                                <td>Prediction</td>
+                                <td>{{ values[4] }}</td>
+                              </tr>
+                            </tbody>
+                        </table> 
+                </div>
+              {% else %}
+                <p>No results here</p>
+              {% endif %}
               <div class="col-6">
-                    <h1 id="title">Results</h1>
-                    {% if details %}
-                      {% for detail in details %}
-                      <!--RESULT SECTION-->
-                      <table class="table table-bordered">
-                        <thead>
-                          <tr>
-                            <th>Details</th>
-                            <th>Results</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Random Forest</td>
-                            <td>{{ detail.rf_model }}</td>
-                          </tr>
-                          <tr>
-                            <td>Support Vector Machine</td>
-                            <td>{{ detail.svc_model }}</td>
-                          </tr>
-                          <tr>
-                            <td>Logistic Regression</td>
-                            <td>{{ detail.lr_model }}</td>
-                          </tr>
-                          <tr>
-                            <td>Accuracy</td>
-                            <td>{{ detail.accuracy }}</td>
-                          </tr>
-                          <tr>
-                            <td>Prediction</td>
-                            <td>{{ detail.prediction_text }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                  {% endfor %}
-                {% else %}
-                  <p>No results here</p>
+                <h1 id="title">Plot</h1>
+                {% if plot_url %}
+                <img src="data:image/png;base64,{{ plot_url }}" alt="flash flood prediction">
+
                 {% endif %}
               </div>
-              <div class="col-3"></div>
             </div>
         </div>
     </div>
