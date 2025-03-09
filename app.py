@@ -1,17 +1,20 @@
 import pickle
 import math as math
+import io
+import base64
 
 
 import numpy as np
 from flask import Flask, flash, request, render_template, redirect, url_for
+import matplotlib.pyplot as plot
+import matplotlib
 
-from helpers.helpers import (
-    load_env_vars,
-    validate_erosion_degree,
-    validate_continous_variables,
-)
-from categories.categorize import CategorizeErosionDegree
-from database.db import db_connection
+matplotlib.use("agg")
+
+
+from database.db import DB
+from helpers.envs import ENV
+from helpers.helpers import Helpers
 
 
 app = Flask(__name__)
@@ -21,15 +24,13 @@ try:
     rf_model = pickle.load(open("./models/rf_model.pkl", "rb"))
     svc_model = pickle.load(open("./models/svc_model.pkl", "rb"))
     lr_model = pickle.load(open("./models/lr_model.pkl", "rb"))
-    env_vars = load_env_vars("env.toml")
-    print("Success loading models & variables")
+    print("Success loading models")
 except (pickle.UnpicklingError, TypeError) as e:
     print(f"Error loading model: {e}")
 
 
-mysql = db_connection(
-    env_vars["HOST"], env_vars["USER"], env_vars["PASSWORD"], env_vars["DATABASE"]
-)
+env_vars = ENV("env.toml").load_env()
+db = DB(env_vars["HOST"], env_vars["USER"], env_vars["PASSWORD"], env_vars["DATABASE"])
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -40,13 +41,15 @@ def predict():
         river_discharge = request.form["river-discharge"]
         erosion_degree = request.form["erosion-degree"]
 
-        is_valid_erosion_degree = validate_erosion_degree(erosion_degree)
-        is_valid_continuous_vars = validate_continous_variables(
-            soil_moisture_content, rainfall_amount, river_discharge
+        helpers = Helpers(
+            erosion_degree, soil_moisture_content, rainfall_amount, river_discharge
         )
 
+        is_valid_erosion_degree = helpers.validate_erosion_degree()
+        is_valid_continuous_vars = helpers.validate_continous_variables()
+
         if is_valid_erosion_degree and is_valid_continuous_vars:
-            Erosion_degree = CategorizeErosionDegree(erosion_degree)
+            Erosion_degree = helpers.categorize_erosion_degree()
             Soil_Moisture = float(soil_moisture_content)
             Rainfall_mm = float(rainfall_amount)
             River_Discharge_m3s = float(river_discharge)
@@ -79,23 +82,17 @@ def predict():
             else:
                 predict_text = "Low chances of flash floods"
 
-            try:
-                cursor = mysql.cursor()
+            works = db.add_data(
+                predict_text, lr_output, rf_output, svc_output, accuracy
+            )
 
-                q = """
-                    INSERT INTO flood_data(prediction_text,lr_model,rf_model,svc_model,accuracy) VALUES(%s,%s,%s,%s,%s)
-                    """
-                data = (predict_text, lr_output, rf_output, svc_output, accuracy)
-
-                cursor.execute(q, data)
-                mysql.commit()
-                cursor.close()
-
-                flash("Data added successfully!")
+            if works:
+                flash(f"Inserted value {works}")
                 return redirect(url_for("results"))
-            except Exception as e:
-                flash(f"An error occured: {str(e)}", "error")
+            else:
+                flash(f"Insertation is {works}")
                 return redirect(url_for("predict"))
+
         else:
             error = "Invalid input data"
             flash(f"{error}", "error")
@@ -105,21 +102,32 @@ def predict():
 
 @app.route("/results")
 def results():
-    try:
-        q = "SELECT * FROM flood_data ORDER BY created_at DESC LIMIT 1"
-        cursor = mysql.cursor()
-        rows = cursor.execute(q)
-        if rows > 0:
-            flood_details = cursor.fetchall()
-            print(flood_details[0])
-            cursor.close()
-            return render_template("results.html", details=flood_details)
-        error = "Failed to fetch data"
-        cursor.close()
-        return render_template("index.html", msg=error)
-    except Exception as e:
-        flash(f"An error occured {str(e)}", "error")
-        return redirect(url_for("predict"))
+    flood_details = db.get_data()
+
+    models = ["Random Forest", "Support Vector", "Logistic Regression", "Accuracy"]
+    rf_prediction = flood_details.get("rf_model")
+    lr_prediction = flood_details.get("lr_model")
+    svc_prediction = flood_details.get("svc_model")
+    acurracy = flood_details.get("accuracy")
+    text = flood_details.get("prediction_text")
+    probabilities = [rf_prediction, svc_prediction, lr_prediction, acurracy]
+
+    plot.figure(figsize=(8, 4))
+    plot.bar(models, probabilities, color=["blue", "green", "red", "grey"])
+    plot.title("Flash Flood Prediction Probabilities")
+    plot.ylabel("Probability")
+    plot.ylim(0, 1)
+
+    buf = io.BytesIO()
+    plot.savefig(buf, format="png")
+    buf.seek(0)
+    plot_url = base64.b64encode(buf.getvalue()).decode("utf8")
+
+    values = [rf_prediction, lr_prediction, svc_prediction, acurracy, text]
+
+    print("Flood details on app ------->", values)
+
+    return render_template("results.html", plot_url=plot_url, values=values)
 
 
 if __name__ == "__main__":
