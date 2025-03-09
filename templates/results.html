@@ -18,7 +18,6 @@
               <div class="col-6">
                     <h1 id="title">Results</h1>
                     {% if details %}
-                      {% for detail in details %}
                       <!--RESULT SECTION-->
                       <table class="table table-bordered">
                         <thead>
@@ -27,6 +26,7 @@
                             <th>Results</th>
                           </tr>
                         </thead>
+                        {% for detail in details %}
                         <tbody>
                           <tr>
                             <td>Random Forest</td>
@@ -49,8 +49,8 @@
                             <td>{{ detail.prediction_text }}</td>
                           </tr>
                         </tbody>
+                        {% endfor %}
                       </table>
-                  {% endfor %}
                 {% else %}
                   <p>No results here</p>
                 {% endif %}
