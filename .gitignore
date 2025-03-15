@@ -1,1 +1,6 @@
 env.toml
+.env
+database/__pycache__/db.cpython-312.pyc
+helpers/__pycache__/envs.cpython-312.pyc
+helpers/__pycache__/helpers.cpython-312.pyc
+./*.pyc
