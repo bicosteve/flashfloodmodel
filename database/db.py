@@ -20,13 +20,36 @@ class DB:
         self.cursor.close()
 
     def add_data(
-        self, predict_text, lr_output, rf_output, svc_output, accuracy
+        self,
+        erosion_degree,
+        soil_moisture,
+        rainfall,
+        river_discharge,
+        rf_output,
+        lr_output,
+        svc_output,
+        accuracy,
+        prediction,
     ) -> bool:
         ok = False
         try:
             q = """
-            INSERT INTO flood_data(prediction_text,lr_model,rf_model,svc_model,accuracy) VALUES(%s,%s,%s,%s,%s) """
-            data = (predict_text, lr_output, rf_output, svc_output, accuracy)
+                INSERT INTO flood_data(erosion_degree,soil_moisture, rainfall,      river_discharge, rf_model, lr_model,svc_model, accuracy,prediction) 
+                VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s) 
+            """
+
+            data = (
+                erosion_degree,
+                soil_moisture,
+                rainfall,
+                river_discharge,
+                lr_output,
+                rf_output,
+                svc_output,
+                accuracy,
+                prediction,
+            )
+
             self.cursor.execute(q, data)
             self.connection.commit()
             ok = True
