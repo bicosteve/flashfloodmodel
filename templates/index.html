@@ -22,13 +22,13 @@
                     <div class="col">
                       <div data-mdb-input-init class="form-outline">
                         <label class="form-label" for="soil-moisture">Soil Moisture Content</label>
-                        <input type="text" name="soil-moisture" id="soil-moisture" class="form-control" />
+                        <input required type="text" name="soil-moisture" id="soil-moisture" class="form-control" placeholder="range 21.9% - 55.4%" />
                       </div>
                     </div>
                     <div class="col">
                       <div data-mdb-input-init class="form-outline">
-                        <label class="form-label" for="rainfall">Rainfall (mm)</label>
-                        <input name="rainfall" type="text" id="rainfall" class="form-control" />
+                        <label class="form-label" for="rainfall">Rainfall(mm)</label>
+                        <input required name="rainfall" type="text" id="rainfall" class="form-control" placeholder="range 0.5 mm - 750 mm" />
                       </div>
                     </div>
                   </div>
@@ -37,8 +37,8 @@
                     <div class="col">
                       <!-- River Discharge Input -->
                       <div data-mdb-input-init class="form-outline mb-4">
-                        <label class="form-label" for="river-discharge">River Discharge Volume</label>
-                        <input type="text" name="river-discharge" id="river-discharge" class="form-control" />
+                        <label class="form-label" for="river-discharge">River Discharge Volume (m3/sec)</label>
+                        <input required type="text" name="river-discharge" id="river-discharge" class="form-control" placeholder="range 0.20-2.03 m3/sec" />
                       </div>
                     </div>
                     <div class="col">
@@ -46,9 +46,9 @@
                       <div data-mdb-input-init class="form-outline mb-4">
                         <label for="erosion-degree">Erosion Degree</label>
                         <select class="form-control" name="erosion-degree" id="erosion-degree">
-                          <option value="S">Low Degree</option>
-                          <option value="M">Medium Degree</option>
-                          <option value="V">High Degree</option>
+                          <option value="S">Slight >=0.75 </option>
+                          <option value="M">Moderate >=0.25 -0.75</option>
+                          <option value="V">Severe <0.24 </option>
                         </select>
                       </div>
                     </div>
