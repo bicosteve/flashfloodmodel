@@ -31,6 +31,6 @@ class Helpers:
         soil = float(self.soil_moisture)
         rainfall = float(self.rainfall_amount)
         river = float(self.river_discharge)
-        if soil <= 0 and rainfall <= 0 and river <= 0:
+        if soil < 0 and rainfall < 0.5 and river < 0.2:
             return False
         return True
